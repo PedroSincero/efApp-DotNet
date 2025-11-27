@@ -1,0 +1,15 @@
+services:
+  api:
+    build: .
+    container_name: ef-energia-api
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:80
+      - Jwt__Key=bXlzdXBlcnNlY3JldGtleWZvcmp3dHRva2VuZ2VuZXJhdGlvbjI1NmJpdHM=
+      - Jwt__Issuer=EFEnergiaAPI
+      - Jwt__Audience=EFEnergiaAPI
+      - Jwt__ExpirationMinutes=60
+    ports:
+      - "8080:80"
+    restart: unless-stopped
+

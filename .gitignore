@@ -39,3 +39,29 @@
 
 # debug information files
 *.dwo
+
+# vscode files
+.vscode/
+
+# cursor files
+.cursor/
+
+# env files
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# logs
+logs/
+
+# temp files
+temp/
+
+# cache files
+cache/
+
+# bin
+bin/
+obj/

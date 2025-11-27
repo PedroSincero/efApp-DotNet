@@ -1,0 +1,81 @@
+{
+	"info": {
+		"_postman_id": "ef-energia-api-collection",
+		"name": "EF Energia API",
+		"description": "Coleção de endpoints da API EF Energia - Eficiência Energética",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Health Check",
+			"item": [
+				{
+					"name": "GET Health Check",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:5000/api/HealthCheck",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"api",
+								"HealthCheck"
+							]
+						},
+						"description": "Verifica o status da aplicação e conexão com banco de dados"
+					},
+					"response": [
+						{
+							"name": "Success",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://localhost:5000/api/HealthCheck",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "5000",
+									"path": [
+										"api",
+										"HealthCheck"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"status\": \"UP\",\n    \"timestamp\": \"2025-11-27T00:16:02.462662Z\",\n    \"version\": \"1.0.0\",\n    \"database\": \"Disconnected\"\n}"
+						}
+					]
+				}
+			],
+			"description": "Endpoints de verificação de saúde da aplicação"
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:5000",
+			"type": "string"
+		},
+		{
+			"key": "token",
+			"value": "",
+			"type": "string"
+		}
+	]
+}
+
