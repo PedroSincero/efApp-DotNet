@@ -340,6 +340,10 @@ Veja exemplos completos em [AUTHENTICATION_GUIDE.md](./AUTHENTICATION_GUIDE.md)
 
 ---
 
+## Testes unitários
+
+Rode "dotnet test ./EFEnergiaAPI.Tests/EFEnergiaAPI.Tests.csproj"
+
 ## 🔧 Troubleshooting
 
 ### Problema: API não inicia
