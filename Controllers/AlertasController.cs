@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using EFEnergiaAPI.Data;
@@ -19,6 +20,7 @@ public class AlertasController : ControllerBase
 
     // GET: api/Alertas?page=1&pageSize=10
     [HttpGet]
+    [Authorize] // Visualizar alertas requer autenticação
     public async Task<IActionResult> GetAlertas(int page = 1, int pageSize = 10)
     {
         var query = _context.Alertas
@@ -37,6 +39,7 @@ public class AlertasController : ControllerBase
 
     // GET: api/Alertas/5
     [HttpGet("{id}")]
+    [Authorize] // Detalhes do alerta requerem autenticação
     public async Task<IActionResult> GetAlerta(int id)
     {
         var alerta = await _context.Alertas
@@ -51,6 +54,7 @@ public class AlertasController : ControllerBase
 
     // POST: api/Alertas
     [HttpPost]
+    [Authorize] // Criar alerta requer autenticação
     public async Task<IActionResult> CreateAlerta([FromBody] Alerta alerta)
     {
         if (!ModelState.IsValid)
@@ -66,6 +70,7 @@ public class AlertasController : ControllerBase
 
     // PUT: api/Alertas/5
     [HttpPut("{id}")]
+    [Authorize] // Atualizar alerta requer autenticação
     public async Task<IActionResult> UpdateAlerta(int id, [FromBody] Alerta alerta)
     {
         if (id != alerta.Id)
@@ -93,6 +98,7 @@ public class AlertasController : ControllerBase
 
     // DELETE: api/Alertas/5
     [HttpDelete("{id}")]
+    [Authorize] // Deletar alerta requer autenticação
     public async Task<IActionResult> DeleteAlerta(int id)
     {
         var alerta = await _context.Alertas.FindAsync(id);

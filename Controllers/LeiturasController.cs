@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using EFEnergiaAPI.Data;
@@ -19,6 +20,7 @@ public class LeiturasController : ControllerBase
 
     // GET: api/Leituras?page=1&pageSize=10
     [HttpGet]
+    [Authorize] // Visualizar leituras requer autenticação
     public async Task<IActionResult> GetLeituras(int page = 1, int pageSize = 10)
     {
         var query = _context.Leituras
@@ -37,6 +39,7 @@ public class LeiturasController : ControllerBase
 
     // GET: api/Leituras/5
     [HttpGet("{id}")]
+    [Authorize] // Detalhes da leitura requerem autenticação
     public async Task<IActionResult> GetLeitura(int id)
     {
         var leitura = await _context.Leituras
@@ -51,6 +54,7 @@ public class LeiturasController : ControllerBase
 
     // POST: api/Leituras
     [HttpPost]
+    [Authorize] // Criar leitura requer autenticação
     public async Task<IActionResult> CreateLeitura([FromBody] Leitura leitura)
     {
         if (!ModelState.IsValid)
@@ -64,6 +68,7 @@ public class LeiturasController : ControllerBase
 
     // PUT: api/Leituras/5
     [HttpPut("{id}")]
+    [Authorize] // Atualizar leitura requer autenticação
     public async Task<IActionResult> UpdateLeitura(int id, [FromBody] Leitura leitura)
     {
         if (id != leitura.Id)
@@ -91,6 +96,7 @@ public class LeiturasController : ControllerBase
 
     // DELETE: api/Leituras/5
     [HttpDelete("{id}")]
+    [Authorize] // Deletar leitura requer autenticação
     public async Task<IActionResult> DeleteLeitura(int id)
     {
         var leitura = await _context.Leituras.FindAsync(id);

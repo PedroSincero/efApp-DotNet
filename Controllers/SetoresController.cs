@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using EFEnergiaAPI.Data;
@@ -19,6 +20,7 @@ public class SetoresController : ControllerBase
 
     // GET: api/Setores?page=1&pageSize=10
     [HttpGet]
+    [AllowAnonymous] // Listagem de setores pode ser pública
     public async Task<IActionResult> GetSetores(int page = 1, int pageSize = 10)
     {
         var query = _context.Setores.AsQueryable();
@@ -34,6 +36,7 @@ public class SetoresController : ControllerBase
 
     // GET: api/Setores/5
     [HttpGet("{id}")]
+    [AllowAnonymous] // Detalhes do setor podem ser públicos
     public async Task<IActionResult> GetSetor(int id)
     {
         var setor = await _context.Setores.FindAsync(id);
@@ -46,6 +49,7 @@ public class SetoresController : ControllerBase
 
     // POST: api/Setores
     [HttpPost]
+    [Authorize] // Criar setor requer autenticação
     public async Task<IActionResult> CreateSetor([FromBody] Setor setor)
     {
         if (!ModelState.IsValid)
@@ -59,6 +63,7 @@ public class SetoresController : ControllerBase
 
     // PUT: api/Setores/5
     [HttpPut("{id}")]
+    [Authorize] // Atualizar setor requer autenticação
     public async Task<IActionResult> UpdateSetor(int id, [FromBody] Setor setor)
     {
         if (id != setor.Id)
@@ -86,6 +91,7 @@ public class SetoresController : ControllerBase
 
     // DELETE: api/Setores/5
     [HttpDelete("{id}")]
+    [Authorize] // Deletar setor requer autenticação
     public async Task<IActionResult> DeleteSetor(int id)
     {
         var setor = await _context.Setores.FindAsync(id);

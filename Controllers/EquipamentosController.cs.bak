@@ -1,4 +1,3 @@
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using EFEnergiaAPI.Data;
@@ -20,7 +19,6 @@ public class EquipamentosController : ControllerBase
 
     // GET: api/Equipamentos?page=1&pageSize=10
     [HttpGet]
-    [AllowAnonymous] // Listagem pode ser pública
     public async Task<IActionResult> GetEquipamentos(int page = 1, int pageSize = 10)
     {
         var query = _context.Equipamentos.Include(e => e.Setor).AsQueryable();
@@ -36,7 +34,6 @@ public class EquipamentosController : ControllerBase
 
     // GET: api/Equipamentos/5
     [HttpGet("{id}")]
-    [AllowAnonymous] // Detalhes podem ser públicos
     public async Task<IActionResult> GetEquipamento(int id)
     {
         var equipamento = await _context.Equipamentos
@@ -51,7 +48,6 @@ public class EquipamentosController : ControllerBase
 
     // POST: api/Equipamentos
     [HttpPost]
-    [Authorize] // Criar equipamento requer autenticação
     public async Task<IActionResult> CreateEquipamento([FromBody] Equipamento equipamento)
     {
         if (!ModelState.IsValid)
@@ -65,7 +61,6 @@ public class EquipamentosController : ControllerBase
 
     // PUT: api/Equipamentos/5
     [HttpPut("{id}")]
-    [Authorize] // Atualizar equipamento requer autenticação
     public async Task<IActionResult> UpdateEquipamento(int id, [FromBody] Equipamento equipamento)
     {
         if (id != equipamento.Id)
@@ -93,7 +88,6 @@ public class EquipamentosController : ControllerBase
 
     // DELETE: api/Equipamentos/5
     [HttpDelete("{id}")]
-    [Authorize] // Deletar equipamento requer autenticação
     public async Task<IActionResult> DeleteEquipamento(int id)
     {
         var equipamento = await _context.Equipamentos.FindAsync(id);

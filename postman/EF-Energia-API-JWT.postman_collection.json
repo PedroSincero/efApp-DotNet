@@ -1,0 +1,539 @@
+{
+  "info": {
+    "name": "EF Energia API - Com JWT",
+    "description": "Collection completa da API com autenticação JWT",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{jwt_token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "item": [
+    {
+      "name": "Authentication",
+      "item": [
+        {
+          "name": "1. Seed Admin User",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/auth/seed-admin",
+              "host": ["{{base_url}}"],
+              "path": ["api", "auth", "seed-admin"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "2. Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.environment.set(\"jwt_token\", jsonData.token);",
+                  "    console.log(\"Token JWT salvo:\", jsonData.token);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"admin\",\n  \"password\": \"admin123\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/auth/login",
+              "host": ["{{base_url}}"],
+              "path": ["api", "auth", "login"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "3. Register User",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"novo_usuario\",\n  \"password\": \"senha123\",\n  \"email\": \"usuario@example.com\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/auth/register",
+              "host": ["{{base_url}}"],
+              "path": ["api", "auth", "register"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Setores",
+      "item": [
+        {
+          "name": "List Setores",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/setores?page=1&pageSize=10",
+              "host": ["{{base_url}}"],
+              "path": ["api", "setores"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "pageSize",
+                  "value": "10"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Setor by ID",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/setores/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "setores", "1"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Setor (Auth Required)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"Setor Industrial\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/setores",
+              "host": ["{{base_url}}"],
+              "path": ["api", "setores"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Setor (Auth Required)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": 1,\n  \"nome\": \"Setor Industrial Atualizado\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/setores/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "setores", "1"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Setor (Auth Required)",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/setores/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "setores", "1"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Equipamentos",
+      "item": [
+        {
+          "name": "List Equipamentos",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/equipamentos?page=1&pageSize=10",
+              "host": ["{{base_url}}"],
+              "path": ["api", "equipamentos"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "pageSize",
+                  "value": "10"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Equipamento by ID",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/equipamentos/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "equipamentos", "1"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Equipamento (Auth Required)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"Sensor Térmico 01\",\n  \"setorId\": 1\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/equipamentos",
+              "host": ["{{base_url}}"],
+              "path": ["api", "equipamentos"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Equipamento (Auth Required)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": 1,\n  \"nome\": \"Sensor Térmico 01 - Atualizado\",\n  \"setorId\": 1\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/equipamentos/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "equipamentos", "1"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Equipamento (Auth Required)",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/equipamentos/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "equipamentos", "1"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Leituras (Auth Required)",
+      "item": [
+        {
+          "name": "List Leituras",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/leituras?page=1&pageSize=10",
+              "host": ["{{base_url}}"],
+              "path": ["api", "leituras"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "pageSize",
+                  "value": "10"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Leitura by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/leituras/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "leituras", "1"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Leitura",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"temperatura\": 25.5,\n  \"dataRegistro\": \"2024-12-02T10:30:00Z\",\n  \"equipamentoId\": 1\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/leituras",
+              "host": ["{{base_url}}"],
+              "path": ["api", "leituras"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Leitura",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": 1,\n  \"temperatura\": 26.0,\n  \"dataRegistro\": \"2024-12-02T10:30:00Z\",\n  \"equipamentoId\": 1\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/leituras/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "leituras", "1"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Leitura",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/leituras/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "leituras", "1"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Alertas (Auth Required)",
+      "item": [
+        {
+          "name": "List Alertas",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/alertas?page=1&pageSize=10",
+              "host": ["{{base_url}}"],
+              "path": ["api", "alertas"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "pageSize",
+                  "value": "10"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Alerta by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/alertas/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "alertas", "1"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Alerta",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"mensagem\": \"Temperatura acima do normal\",\n  \"equipamentoId\": 1,\n  \"resolvido\": false\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/alertas",
+              "host": ["{{base_url}}"],
+              "path": ["api", "alertas"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Alerta",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": 1,\n  \"mensagem\": \"Temperatura normalizada\",\n  \"dataCriacao\": \"2024-12-02T10:35:00Z\",\n  \"equipamentoId\": 1,\n  \"resolvido\": true\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/alertas/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "alertas", "1"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Alerta",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/alertas/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "alertas", "1"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Health Check",
+      "item": [
+        {
+          "name": "Check API Health",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/healthcheck",
+              "host": ["{{base_url}}"],
+              "path": ["api", "healthcheck"]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:8080",
+      "type": "string"
+    },
+    {
+      "key": "jwt_token",
+      "value": "",
+      "type": "string"
+    }
+  ]
+}

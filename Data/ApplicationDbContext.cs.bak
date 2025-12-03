@@ -14,7 +14,6 @@ namespace EFEnergiaAPI.Data
         public DbSet<Equipamento> Equipamentos { get; set; }
         public DbSet<Leitura> Leituras { get; set; }
         public DbSet<Alerta> Alertas { get; set; }
-        public DbSet<User> Users { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -75,29 +74,6 @@ namespace EFEnergiaAPI.Data
 
                 entity.Property(e => e.DataCriacao).IsRequired();
                 entity.Property(e => e.Resolvido).IsRequired();
-            });
-
-            modelBuilder.Entity<User>(entity =>
-            {
-                entity.ToTable("Users");
-                entity.HasKey(e => e.Id);
-                
-                entity.Property(e => e.Username)
-                      .IsRequired()
-                      .HasMaxLength(100);
-                
-                entity.Property(e => e.PasswordHash)
-                      .IsRequired()
-                      .HasMaxLength(255);
-                
-                entity.Property(e => e.Email)
-                      .HasMaxLength(100);
-                
-                entity.Property(e => e.CreatedAt).IsRequired();
-                entity.Property(e => e.IsActive).IsRequired();
-                
-                entity.HasIndex(e => e.Username).IsUnique();
-                entity.HasIndex(e => e.Email).IsUnique();
             });
         }
     }
