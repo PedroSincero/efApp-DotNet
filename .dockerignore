@@ -54,3 +54,8 @@ Dockerfile*
 # Backup files
 *.bak
 *.backup
+
+# Test projects
+EFEnergiaAPI.Tests/
+**/*Tests.csproj
+**/*.Tests/

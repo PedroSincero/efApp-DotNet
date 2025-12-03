@@ -1,9 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using EFEnergiaAPI.Data;
-using Api.Models;
-
+using EFEnergiaAPI.Services.Setor;
+using EFEnergiaAPI.ViewModels.Setor;
 
 namespace EFEnergiaAPI.Controllers;
 
@@ -11,11 +9,11 @@ namespace EFEnergiaAPI.Controllers;
 [Route("api/[controller]")]
 public class SetoresController : ControllerBase
 {
-    private readonly ApplicationDbContext _context;
+    private readonly ISetorService _setorService;
 
-    public SetoresController(ApplicationDbContext context)
+    public SetoresController(ISetorService setorService)
     {
-        _context = context;
+        _setorService = setorService;
     }
 
     // GET: api/Setores?page=1&pageSize=10
@@ -23,15 +21,8 @@ public class SetoresController : ControllerBase
     [AllowAnonymous] // Listagem de setores pode ser pública
     public async Task<IActionResult> GetSetores(int page = 1, int pageSize = 10)
     {
-        var query = _context.Setores.AsQueryable();
-
-        var totalItems = await query.CountAsync();
-        var items = await query
-            .Skip((page - 1) * pageSize)
-            .Take(pageSize)
-            .ToListAsync();
-
-        return Ok(new { totalItems, page, pageSize, items });
+        var result = await _setorService.GetSetoresAsync(page, pageSize);
+        return Ok(result);
     }
 
     // GET: api/Setores/5
@@ -39,7 +30,7 @@ public class SetoresController : ControllerBase
     [AllowAnonymous] // Detalhes do setor podem ser públicos
     public async Task<IActionResult> GetSetor(int id)
     {
-        var setor = await _context.Setores.FindAsync(id);
+        var setor = await _setorService.GetSetorByIdAsync(id);
 
         if (setor == null)
             return NotFound("Setor não encontrado.");
@@ -50,43 +41,46 @@ public class SetoresController : ControllerBase
     // POST: api/Setores
     [HttpPost]
     [Authorize] // Criar setor requer autenticação
-    public async Task<IActionResult> CreateSetor([FromBody] Setor setor)
+    public async Task<IActionResult> CreateSetor([FromBody] SetorCreateViewModel viewModel)
     {
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
 
-        _context.Setores.Add(setor);
-        await _context.SaveChangesAsync();
-
-        return CreatedAtAction(nameof(GetSetor), new { id = setor.Id }, setor);
+        try
+        {
+            var setor = await _setorService.CreateSetorAsync(viewModel);
+            return CreatedAtAction(nameof(GetSetor), new { id = setor.Id }, setor);
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(ex.Message);
+        }
     }
 
     // PUT: api/Setores/5
     [HttpPut("{id}")]
     [Authorize] // Atualizar setor requer autenticação
-    public async Task<IActionResult> UpdateSetor(int id, [FromBody] Setor setor)
+    public async Task<IActionResult> UpdateSetor(int id, [FromBody] SetorUpdateViewModel viewModel)
     {
-        if (id != setor.Id)
+        if (id != viewModel.Id)
             return BadRequest("ID da URL diferente do body.");
 
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
 
-        _context.Entry(setor).State = EntityState.Modified;
-
         try
         {
-            await _context.SaveChangesAsync();
-        }
-        catch (DbUpdateConcurrencyException)
-        {
-            if (!_context.Setores.Any(e => e.Id == id))
+            var setor = await _setorService.UpdateSetorAsync(viewModel);
+
+            if (setor == null)
                 return NotFound("Setor não encontrado.");
 
-            throw;
+            return NoContent();
         }
-
-        return NoContent();
+        catch (Exception ex)
+        {
+            return BadRequest(ex.Message);
+        }
     }
 
     // DELETE: api/Setores/5
@@ -94,13 +88,10 @@ public class SetoresController : ControllerBase
     [Authorize] // Deletar setor requer autenticação
     public async Task<IActionResult> DeleteSetor(int id)
     {
-        var setor = await _context.Setores.FindAsync(id);
+        var deleted = await _setorService.DeleteSetorAsync(id);
 
-        if (setor == null)
+        if (!deleted)
             return NotFound("Setor não encontrado.");
-
-        _context.Setores.Remove(setor);
-        await _context.SaveChangesAsync();
 
         return NoContent();
     }

@@ -1,9 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using EFEnergiaAPI.Data;
-using Api.Models;
-
+using EFEnergiaAPI.Services.Leitura;
+using EFEnergiaAPI.ViewModels.Leitura;
 
 namespace EFEnergiaAPI.Controllers;
 
@@ -11,11 +9,11 @@ namespace EFEnergiaAPI.Controllers;
 [Route("api/[controller]")]
 public class LeiturasController : ControllerBase
 {
-    private readonly ApplicationDbContext _context;
+    private readonly ILeituraService _leituraService;
 
-    public LeiturasController(ApplicationDbContext context)
+    public LeiturasController(ILeituraService leituraService)
     {
-        _context = context;
+        _leituraService = leituraService;
     }
 
     // GET: api/Leituras?page=1&pageSize=10
@@ -23,18 +21,8 @@ public class LeiturasController : ControllerBase
     [Authorize] // Visualizar leituras requer autenticação
     public async Task<IActionResult> GetLeituras(int page = 1, int pageSize = 10)
     {
-        var query = _context.Leituras
-            .Include(l => l.Equipamento)
-            .AsQueryable();
-
-        var totalItems = await query.CountAsync();
-        var items = await query
-            .OrderByDescending(l => l.DataRegistro)
-            .Skip((page - 1) * pageSize)
-            .Take(pageSize)
-            .ToListAsync();
-
-        return Ok(new { totalItems, page, pageSize, items });
+        var result = await _leituraService.GetLeiturasAsync(page, pageSize);
+        return Ok(result);
     }
 
     // GET: api/Leituras/5
@@ -42,9 +30,7 @@ public class LeiturasController : ControllerBase
     [Authorize] // Detalhes da leitura requerem autenticação
     public async Task<IActionResult> GetLeitura(int id)
     {
-        var leitura = await _context.Leituras
-            .Include(l => l.Equipamento)
-            .FirstOrDefaultAsync(l => l.Id == id);
+        var leitura = await _leituraService.GetLeituraByIdAsync(id);
 
         if (leitura == null)
             return NotFound("Leitura não encontrada.");
@@ -55,43 +41,54 @@ public class LeiturasController : ControllerBase
     // POST: api/Leituras
     [HttpPost]
     [Authorize] // Criar leitura requer autenticação
-    public async Task<IActionResult> CreateLeitura([FromBody] Leitura leitura)
+    public async Task<IActionResult> CreateLeitura([FromBody] LeituraCreateViewModel viewModel)
     {
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
 
-        _context.Leituras.Add(leitura);
-        await _context.SaveChangesAsync();
-
-        return CreatedAtAction(nameof(GetLeitura), new { id = leitura.Id }, leitura);
+        try
+        {
+            var leitura = await _leituraService.CreateLeituraAsync(viewModel);
+            return CreatedAtAction(nameof(GetLeitura), new { id = leitura.Id }, leitura);
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(ex.Message);
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(ex.Message);
+        }
     }
 
     // PUT: api/Leituras/5
     [HttpPut("{id}")]
     [Authorize] // Atualizar leitura requer autenticação
-    public async Task<IActionResult> UpdateLeitura(int id, [FromBody] Leitura leitura)
+    public async Task<IActionResult> UpdateLeitura(int id, [FromBody] LeituraUpdateViewModel viewModel)
     {
-        if (id != leitura.Id)
+        if (id != viewModel.Id)
             return BadRequest("ID da URL diferente do body.");
 
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
 
-        _context.Entry(leitura).State = EntityState.Modified;
-
         try
         {
-            await _context.SaveChangesAsync();
-        }
-        catch (DbUpdateConcurrencyException)
-        {
-            if (!_context.Leituras.Any(e => e.Id == id))
+            var leitura = await _leituraService.UpdateLeituraAsync(viewModel);
+
+            if (leitura == null)
                 return NotFound("Leitura não encontrada.");
 
-            throw;
+            return NoContent();
         }
-
-        return NoContent();
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(ex.Message);
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(ex.Message);
+        }
     }
 
     // DELETE: api/Leituras/5
@@ -99,14 +96,12 @@ public class LeiturasController : ControllerBase
     [Authorize] // Deletar leitura requer autenticação
     public async Task<IActionResult> DeleteLeitura(int id)
     {
-        var leitura = await _context.Leituras.FindAsync(id);
+        var deleted = await _leituraService.DeleteLeituraAsync(id);
 
-        if (leitura == null)
+        if (!deleted)
             return NotFound("Leitura não encontrada.");
-
-        _context.Leituras.Remove(leitura);
-        await _context.SaveChangesAsync();
 
         return NoContent();
     }
 }
+

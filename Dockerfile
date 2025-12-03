@@ -1,5 +1,5 @@
-# Use a imagem base do .NET 10 SDK para build
-FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
+# Use a imagem base do .NET 8 SDK para build
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /app
 
 # Copiar arquivos do projeto e restaurar dependências
@@ -14,7 +14,7 @@ COPY . ./
 RUN dotnet publish HelloWorld.csproj -c Release -o out
 
 # Imagem final de runtime
-FROM mcr.microsoft.com/dotnet/aspnet:10.0
+FROM mcr.microsoft.com/dotnet/aspnet:8.0
 WORKDIR /app
 EXPOSE 80
 

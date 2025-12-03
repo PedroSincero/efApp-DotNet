@@ -1,9 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using EFEnergiaAPI.Data;
-using Api.Models;
-
+using EFEnergiaAPI.Services.Alerta;
+using EFEnergiaAPI.ViewModels.Alerta;
 
 namespace EFEnergiaAPI.Controllers;
 
@@ -11,11 +9,11 @@ namespace EFEnergiaAPI.Controllers;
 [Route("api/[controller]")]
 public class AlertasController : ControllerBase
 {
-    private readonly ApplicationDbContext _context;
+    private readonly IAlertaService _alertaService;
 
-    public AlertasController(ApplicationDbContext context)
+    public AlertasController(IAlertaService alertaService)
     {
-        _context = context;
+        _alertaService = alertaService;
     }
 
     // GET: api/Alertas?page=1&pageSize=10
@@ -23,18 +21,8 @@ public class AlertasController : ControllerBase
     [Authorize] // Visualizar alertas requer autenticação
     public async Task<IActionResult> GetAlertas(int page = 1, int pageSize = 10)
     {
-        var query = _context.Alertas
-            .Include(a => a.Equipamento)
-            .AsQueryable();
-
-        var totalItems = await query.CountAsync();
-        var items = await query
-            .OrderByDescending(a => a.DataCriacao)
-            .Skip((page - 1) * pageSize)
-            .Take(pageSize)
-            .ToListAsync();
-
-        return Ok(new { totalItems, page, pageSize, items });
+        var result = await _alertaService.GetAlertasAsync(page, pageSize);
+        return Ok(result);
     }
 
     // GET: api/Alertas/5
@@ -42,9 +30,7 @@ public class AlertasController : ControllerBase
     [Authorize] // Detalhes do alerta requerem autenticação
     public async Task<IActionResult> GetAlerta(int id)
     {
-        var alerta = await _context.Alertas
-            .Include(a => a.Equipamento)
-            .FirstOrDefaultAsync(a => a.Id == id);
+        var alerta = await _alertaService.GetAlertaByIdAsync(id);
 
         if (alerta == null)
             return NotFound("Alerta não encontrado.");
@@ -55,45 +41,54 @@ public class AlertasController : ControllerBase
     // POST: api/Alertas
     [HttpPost]
     [Authorize] // Criar alerta requer autenticação
-    public async Task<IActionResult> CreateAlerta([FromBody] Alerta alerta)
+    public async Task<IActionResult> CreateAlerta([FromBody] AlertaCreateViewModel viewModel)
     {
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
 
-        alerta.DataCriacao = DateTime.UtcNow;
-
-        _context.Alertas.Add(alerta);
-        await _context.SaveChangesAsync();
-
-        return CreatedAtAction(nameof(GetAlerta), new { id = alerta.Id }, alerta);
+        try
+        {
+            var alerta = await _alertaService.CreateAlertaAsync(viewModel);
+            return CreatedAtAction(nameof(GetAlerta), new { id = alerta.Id }, alerta);
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(ex.Message);
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(ex.Message);
+        }
     }
 
     // PUT: api/Alertas/5
     [HttpPut("{id}")]
     [Authorize] // Atualizar alerta requer autenticação
-    public async Task<IActionResult> UpdateAlerta(int id, [FromBody] Alerta alerta)
+    public async Task<IActionResult> UpdateAlerta(int id, [FromBody] AlertaUpdateViewModel viewModel)
     {
-        if (id != alerta.Id)
+        if (id != viewModel.Id)
             return BadRequest("ID da URL diferente do body.");
 
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
 
-        _context.Entry(alerta).State = EntityState.Modified;
-
         try
         {
-            await _context.SaveChangesAsync();
-        }
-        catch (DbUpdateConcurrencyException)
-        {
-            if (!_context.Alertas.Any(e => e.Id == id))
+            var alerta = await _alertaService.UpdateAlertaAsync(viewModel);
+
+            if (alerta == null)
                 return NotFound("Alerta não encontrado.");
 
-            throw;
+            return NoContent();
         }
-
-        return NoContent();
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(ex.Message);
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(ex.Message);
+        }
     }
 
     // DELETE: api/Alertas/5
@@ -101,14 +96,12 @@ public class AlertasController : ControllerBase
     [Authorize] // Deletar alerta requer autenticação
     public async Task<IActionResult> DeleteAlerta(int id)
     {
-        var alerta = await _context.Alertas.FindAsync(id);
+        var deleted = await _alertaService.DeleteAlertaAsync(id);
 
-        if (alerta == null)
+        if (!deleted)
             return NotFound("Alerta não encontrado.");
-
-        _context.Alertas.Remove(alerta);
-        await _context.SaveChangesAsync();
 
         return NoContent();
     }
 }
+

@@ -4,6 +4,11 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using EFEnergiaAPI.Data;
 using EFEnergiaAPI.Services;
+using EFEnergiaAPI.Services.Setor;
+using EFEnergiaAPI.Services.Equipamento;
+using EFEnergiaAPI.Services.Leitura;
+using EFEnergiaAPI.Services.Alerta;
+using EFEnergiaAPI.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -45,6 +50,10 @@ builder.Services.AddAuthorization();
 
 // Register services
 builder.Services.AddScoped<IHealthCheckService, HealthCheckService>();
+builder.Services.AddScoped<ISetorService, SetorService>();
+builder.Services.AddScoped<IEquipamentoService, EquipamentoService>();
+builder.Services.AddScoped<ILeituraService, LeituraService>();
+builder.Services.AddScoped<IAlertaService, AlertaService>();
 
 // CORS
 builder.Services.AddCors(options =>
@@ -90,7 +99,8 @@ using (var scope = app.Services.CreateScope())
         catch (Exception retryEx)
         {
             logger.LogError(retryEx, "Failed to apply migrations after retry.");
-            throw;
+            logger.LogWarning("Continuing without database migrations. Database may not be available.");
+            // Não fazer throw para permitir que a aplicação inicie mesmo sem banco
         }
     }
 }
@@ -102,6 +112,7 @@ if (!app.Environment.IsDevelopment())
 }
 
 app.UseCors("AllowAll");
+app.UseMiddleware<GlobalExceptionHandlerMiddleware>();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
