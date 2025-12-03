@@ -12,7 +12,7 @@ namespace EFEnergiaAPI.Tests.Controllers;
 
 public class AuthControllerTests
 {
-    private readonly Mock<ApplicationDbContext> _mockContext;
+    private readonly ApplicationDbContext _context;
     private readonly Mock<IConfiguration> _mockConfiguration;
     private readonly AuthController _controller;
 
@@ -25,40 +25,30 @@ public class AuthControllerTests
         _mockConfiguration.Setup(c => c["Jwt:Audience"]).Returns("EFEnergiaAPI");
         _mockConfiguration.Setup(c => c["Jwt:ExpirationMinutes"]).Returns("60");
 
-        // Setup mock DbContext
+        // Setup real DbContext with in-memory database
         var options = new DbContextOptionsBuilder<ApplicationDbContext>()
             .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
             .Options;
-        _mockContext = new Mock<ApplicationDbContext>(options);
+        _context = new ApplicationDbContext(options);
 
-        _controller = new AuthController(_mockContext.Object, _mockConfiguration.Object);
+        _controller = new AuthController(_context, _mockConfiguration.Object);
     }
 
     [Fact]
     public async Task SeedAdmin_ReturnsHttpStatusCode200_WhenNoUsersExist()
     {
-        // Arrange
-        var mockUsers = new Mock<DbSet<User>>();
-        var usersList = new List<User>().AsQueryable();
-
-        mockUsers.As<IQueryable<User>>().Setup(m => m.Provider).Returns(usersList.Provider);
-        mockUsers.As<IQueryable<User>>().Setup(m => m.Expression).Returns(usersList.Expression);
-        mockUsers.As<IQueryable<User>>().Setup(m => m.ElementType).Returns(usersList.ElementType);
-        mockUsers.As<IQueryable<User>>().Setup(m => m.GetEnumerator()).Returns(usersList.GetEnumerator());
-        mockUsers.As<IAsyncEnumerable<User>>().Setup(m => m.GetAsyncEnumerator(default))
-            .Returns(new TestAsyncEnumerator<User>(usersList.GetEnumerator()));
-
-        _mockContext.Setup(c => c.Users).Returns(mockUsers.Object);
-        _mockContext.Setup(c => c.Users.AnyAsync(It.IsAny<System.Linq.Expressions.Expression<Func<User, bool>>>(), default))
-            .ReturnsAsync(false);
+        // Arrange - Database is empty (no users exist)
 
         // Act
         var result = await _controller.SeedAdmin();
 
         // Assert
-        // Note: This test may need adjustment based on actual implementation
-        // For now, we'll just verify the controller can be instantiated and method exists
-        Assert.NotNull(_controller);
+        var okResult = Assert.IsType<OkObjectResult>(result);
+        Assert.Equal(200, okResult.StatusCode);
+        
+        // Verify that a user was created
+        var userExists = await _context.Users.AnyAsync(u => u.Username == "admin");
+        Assert.True(userExists);
     }
 }
 

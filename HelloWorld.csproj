@@ -17,5 +17,12 @@
     </PackageReference>
   </ItemGroup>
 
+  <ItemGroup>
+    <Compile Remove="EFEnergiaAPI.Tests/**" />
+    <Content Remove="EFEnergiaAPI.Tests/**" />
+    <EmbeddedResource Remove="EFEnergiaAPI.Tests/**" />
+    <None Remove="EFEnergiaAPI.Tests/**" />
+  </ItemGroup>
+
 </Project>
 

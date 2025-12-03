@@ -7,8 +7,10 @@ COPY *.csproj ./
 COPY *.sln ./
 RUN dotnet restore HelloWorld.csproj
 
-# Copiar todo o código
+# Copiar todo o código (excluindo testes via .dockerignore)
 COPY . ./
+# Remover arquivos de teste se foram copiados acidentalmente
+RUN rm -rf EFEnergiaAPI.Tests/ || true
 
 # Build e publish especificando o projeto correto
 RUN dotnet publish HelloWorld.csproj -c Release -o out
